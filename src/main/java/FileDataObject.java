@@ -1,3 +1,5 @@
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by abhilashbss on 2/10/21.
  */
@@ -39,5 +41,19 @@ public class FileDataObject implements DataObjectInterface {
     public void set(String data){
         this.setDataEntity(data);
         handler.writeFile(this.getFilePath(), data);
+    }
+
+    public void execute() throws Exception{
+        String data = this.get();
+        this.waitOperation();
+        this.set(data);
+    }
+
+    public void waitOperation() throws Exception{
+        Integer sec = 100;
+        while (sec > 0){
+            TimeUnit.SECONDS.sleep(1);
+            sec = sec - 1;
+        }
     }
 }
