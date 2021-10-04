@@ -1,6 +1,5 @@
 package LockSafeWrapper;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 /**
@@ -34,10 +33,25 @@ public class RemoteLockHandler {
         return dbPersister.ifSelectReturns(query);
     }
 
+    public boolean isRemoteMultipleReadLock(String filePath) throws Exception {
+        String query= "select count(1) from " + dbPersister.getTableName()
+                + " where file_path = '" + filePath + "' and "
+                + " lock_type = 'read' group by file_path having count(1)>1";
+        return dbPersister.ifSelectReturns(query);
+    }
+
     public boolean isRemoteWriteLock(String filePath) throws Exception {
         String query= "select * from " + dbPersister.getTableName()
                 + " where file_path = '" + filePath + "' and "
                 + " lock_type = 'write';";
+        return dbPersister.ifSelectReturns(query);
+    }
+
+
+    public boolean isRemoteMultipleWriteLock(String filePath) throws Exception {
+        String query= "select count(1) from " + dbPersister.getTableName()
+                + " where file_path = '" + filePath + "' and "
+                + " lock_type = 'write' group by file_path having count(1)>1";
         return dbPersister.ifSelectReturns(query);
     }
 

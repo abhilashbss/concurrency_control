@@ -1,7 +1,6 @@
 package DataObjects;
 
 import LockSafeWrapper.DataObjectInterface;
-
 import java.util.concurrent.TimeUnit;
 
 /**

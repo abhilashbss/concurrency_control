@@ -17,31 +17,46 @@ public class LockDataObjectWrapper {
         if (this.isReadLock() || this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())){
             throw new Exception("Data is locked not available for read");
         }
-        this.setReadLock(true);
+        this.setReadLock();
         this.remoteLockHandler.lockObject("read",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
+
+        if(this.remoteLockHandler.isRemoteMultipleReadLock(this.getDataObject().getFilePath())){
+            this.releaseReadLock();
+            this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
+            throw new Exception("Data is locked not available for read");
+        }
 
         String data = this.dataObject.get();
 
-        this.setReadLock(false);
+        this.releaseReadLock();
         this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
 
         return data;
     }
 
     public void setSafe(String data) throws Exception{
-        if (this.isReadLock() || this.isWriteLock()  || this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())
+        if (this.isReadLock() || this.isWriteLock() || this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())
                 || this.remoteLockHandler.isRemoteWriteLock(this.getDataObject().getFilePath())){
             throw new Exception("Data is locked not available for write");
         }
-        this.setReadLock(true);
-        this.setWriteLock(true);
+        this.setReadLock();
+        this.setWriteLock();
         this.remoteLockHandler.lockObject("read",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
         this.remoteLockHandler.lockObject("write",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
 
+        if(this.remoteLockHandler.isRemoteMultipleReadLock(this.getDataObject().getFilePath())
+                || this.remoteLockHandler.isRemoteMultipleWriteLock(this.getDataObject().getFilePath())){
+            this.releaseReadLock();
+            this.releaseWriteLock();
+            this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
+            this.remoteLockHandler.releaseObject("write",this.getDataObject().getFilePath());
+            throw new Exception("Data is locked not available for write");
+        }
+
         this.dataObject.set(data);
 
-        this.setReadLock(false);
-        this.setWriteLock(false);
+        this.releaseReadLock();
+        this.releaseWriteLock();
         this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
         this.remoteLockHandler.releaseObject("write",this.getDataObject().getFilePath());
     }
@@ -51,15 +66,24 @@ public class LockDataObjectWrapper {
                 || this.remoteLockHandler.isRemoteWriteLock(this.getDataObject().getFilePath())){
             throw new Exception("Data is locked not available for write");
         }
-        this.setReadLock(true);
-        this.setWriteLock(true);
+        this.setReadLock();
+        this.setWriteLock();
         this.remoteLockHandler.lockObject("read",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
         this.remoteLockHandler.lockObject("write",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
 
+        if(this.remoteLockHandler.isRemoteMultipleReadLock(this.getDataObject().getFilePath())
+                || this.remoteLockHandler.isRemoteMultipleWriteLock(this.getDataObject().getFilePath())){
+            this.releaseReadLock();
+            this.releaseWriteLock();
+            this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
+            this.remoteLockHandler.releaseObject("write",this.getDataObject().getFilePath());
+            throw new Exception("Data is locked not available for write");
+        }
+
         this.dataObject.execute();
 
-        this.setReadLock(false);
-        this.setWriteLock(false);
+        this.releaseReadLock();
+        this.releaseWriteLock();
         this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
         this.remoteLockHandler.releaseObject("write",this.getDataObject().getFilePath());
     }
@@ -76,16 +100,34 @@ public class LockDataObjectWrapper {
         return writeLock;
     }
 
-    public void setWriteLock(boolean writeLock) {
-        this.writeLock = writeLock;
-    }
-
     public boolean isReadLock() {
         return readLock;
     }
 
-    public void setReadLock(boolean readLock) {
-        this.readLock = readLock;
+    public synchronized void setWriteLock() throws Exception{
+        if(!this.writeLock){
+            this.writeLock = true;
+        }
+        else{
+            throw new Exception("Data trying to be accessed is locked");
+        }
+    }
+
+    public synchronized void releaseWriteLock(){
+        this.writeLock = false;
+    }
+
+    public synchronized void setReadLock() throws Exception {
+        if(!this.readLock) {
+            this.readLock = true;
+        }
+        else{
+            throw new Exception("Data trying to be accessed is locked");
+        }
+    }
+
+    public synchronized void releaseReadLock(){
+        this.readLock = false;
     }
 
     public RemoteLockHandler getRemoteLockHandler() {
