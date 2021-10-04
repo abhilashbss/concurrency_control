@@ -1,3 +1,5 @@
+package LockSafeWrapper;
+
 import java.sql.Timestamp;
 
 /**
@@ -5,7 +7,7 @@ import java.sql.Timestamp;
  */
 public class LockDataObjectWrapper {
 
-    public DataObjectInterface dataObject;
+    public DataObjectInterface<String> dataObject;
     public boolean writeLock;
     public boolean readLock;
     public RemoteLockHandler remoteLockHandler;

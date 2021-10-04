@@ -1,9 +1,11 @@
+package LockSafeWrapper;
+
 /**
  * Created by abhilashbss on 2/10/21.
  */
-public interface DataObjectInterface {
+public interface DataObjectInterface<T> {
     public String getFilePath();
-    public String get();
-    public void set(String data);
+    public T get();
+    public void set(T data);
     public void execute() throws Exception;
 }

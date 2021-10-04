@@ -7,6 +7,11 @@
     <groupId>com.distributed.tools</groupId>
     <artifactId>concurrency_control</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.15</version>
+        </dependency>
+    </dependencies>
 </project>

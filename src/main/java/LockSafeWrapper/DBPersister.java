@@ -1,5 +1,6 @@
+package LockSafeWrapper;
+
 import java.sql.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -14,13 +15,13 @@ public class DBPersister {
     public String user;
     public String pass;
 
-    public void updateDB(String query) throws SQLException{
+    public void updateDB(String query) throws Exception{
         Connection conn = DriverManager.getConnection(this.getJdbcUrl(), this.getUser(), this.getPass());
         Statement stmt = conn.createStatement();
         stmt.executeUpdate(query);
     }
 
-    public boolean ifSelectReturns(String query) throws SQLException{
+    public boolean ifSelectReturns(String query) throws Exception{
         Connection conn = DriverManager.getConnection(this.getJdbcUrl(), this.getUser(), this.getPass());
         Statement stmt = conn.createStatement();
         ResultSet rs =stmt.executeQuery(query);
