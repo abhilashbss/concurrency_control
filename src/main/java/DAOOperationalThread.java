@@ -12,6 +12,7 @@ public class DAOOperationalThread extends Thread {
     public String serviceName;
     public DBPersister dbPersister;
     public RemoteLockHandler lockHandler;
+    public LockDataObjectWrapper lockDataObjectWrapper;
 
     public void run(){
 
@@ -21,13 +22,12 @@ public class DAOOperationalThread extends Thread {
         fileDAO.setFilePath("/home/abhilashbss/IdeaProjects/concurrency_control/src/main/resources/test.txt");
 
         // Wrap the data object for lock based safer usage
-        LockDataObjectWrapper safeFileDAO = new LockDataObjectWrapper();
-        safeFileDAO.setDataObject(fileDAO);
-        safeFileDAO.setServiceName(this.getServiceName());
-        safeFileDAO.setRemoteLockHandler(lockHandler);
+        this.lockDataObjectWrapper.setDataObject(fileDAO);
+        this.lockDataObjectWrapper.setServiceName(this.getServiceName());
+        this.lockDataObjectWrapper.setRemoteLockHandler(lockHandler);
 
         try{
-            safeFileDAO.executeSafe();
+            this.lockDataObjectWrapper.executeSafe();
         }
         catch(Exception e){
             System.out.println("Service : " + serviceName + " Exception : " + e);
@@ -59,5 +59,12 @@ public class DAOOperationalThread extends Thread {
         this.lockHandler = lockHandler;
     }
 
+    public LockDataObjectWrapper getLockDataObjectWrapper() {
+        return lockDataObjectWrapper;
+    }
+
+    public void setLockDataObjectWrapper(LockDataObjectWrapper lockDataObjectWrapper) {
+        this.lockDataObjectWrapper = lockDataObjectWrapper;
+    }
 
 }

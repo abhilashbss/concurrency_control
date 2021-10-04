@@ -8,7 +8,6 @@ import java.util.logging.Logger;
  */
 public class DBPersister {
 
-
     private final static Logger logger = Logger.getLogger("concurrency_control");
     public String jdbcUrl;
     public String tableName;

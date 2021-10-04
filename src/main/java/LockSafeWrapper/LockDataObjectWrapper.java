@@ -14,8 +14,13 @@ public class LockDataObjectWrapper {
     public String serviceName;
 
     public String getSafe() throws Exception{
-        if (this.isReadLock() || this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())){
-            throw new Exception("Data is locked not available for read");
+        //This prevents unnecessary DB calls
+        if (this.isReadLock()){
+            throw new Exception("LOCAL LOCK : Data is locked not available for read");
+        }
+
+        if (this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())){
+            throw new Exception("REMOTE LOCK : Data is locked not available for read");
         }
         this.setReadLock();
         this.remoteLockHandler.lockObject("read",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
@@ -35,10 +40,16 @@ public class LockDataObjectWrapper {
     }
 
     public void setSafe(String data) throws Exception{
-        if (this.isReadLock() || this.isWriteLock() || this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())
-                || this.remoteLockHandler.isRemoteWriteLock(this.getDataObject().getFilePath())){
-            throw new Exception("Data is locked not available for write");
+        //This prevents unnecessary DB calls
+        if (this.isReadLock() || this.isWriteLock()){
+            throw new Exception("LOCAL LOCK : Data is locked not available for write");
         }
+
+        if (this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())
+                || this.remoteLockHandler.isRemoteWriteLock(this.getDataObject().getFilePath())){
+            throw new Exception("REMOTE LOCK : Data is locked not available for write");
+        }
+
         this.setReadLock();
         this.setWriteLock();
         this.remoteLockHandler.lockObject("read",this.getDataObject().getFilePath(),this.getServiceName(),new Timestamp(System.currentTimeMillis()));
@@ -50,7 +61,7 @@ public class LockDataObjectWrapper {
             this.releaseWriteLock();
             this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
             this.remoteLockHandler.releaseObject("write",this.getDataObject().getFilePath());
-            throw new Exception("Data is locked not available for write");
+            throw new Exception("REMOTE LOCK :Data is locked not available for write");
         }
 
         this.dataObject.set(data);
@@ -62,9 +73,14 @@ public class LockDataObjectWrapper {
     }
 
     public void executeSafe() throws Exception{
-        if (this.isReadLock() || this.isWriteLock()  || this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())
+        //This prevents unnecessary DB calls
+        if (this.isReadLock() || this.isWriteLock() ){
+            throw new Exception("LOCAL LOCK : Data is locked not available for write");
+        }
+
+        if(this.remoteLockHandler.isRemoteReadLock(this.getDataObject().getFilePath())
                 || this.remoteLockHandler.isRemoteWriteLock(this.getDataObject().getFilePath())){
-            throw new Exception("Data is locked not available for write");
+            throw new Exception("REMOTE LOCK : Data is locked not available for write");
         }
         this.setReadLock();
         this.setWriteLock();
@@ -77,7 +93,7 @@ public class LockDataObjectWrapper {
             this.releaseWriteLock();
             this.remoteLockHandler.releaseObject("read",this.getDataObject().getFilePath());
             this.remoteLockHandler.releaseObject("write",this.getDataObject().getFilePath());
-            throw new Exception("Data is locked not available for write");
+            throw new Exception("REMOTE LOCK : Data is locked not available for write");
         }
 
         this.dataObject.execute();
@@ -109,7 +125,7 @@ public class LockDataObjectWrapper {
             this.writeLock = true;
         }
         else{
-            throw new Exception("Data trying to be accessed is locked");
+            throw new Exception("LOCAL LOCK : Data trying to be accessed is locked");
         }
     }
 
@@ -122,7 +138,7 @@ public class LockDataObjectWrapper {
             this.readLock = true;
         }
         else{
-            throw new Exception("Data trying to be accessed is locked");
+            throw new Exception("LOCAL LOCK : Data trying to be accessed is locked");
         }
     }
 

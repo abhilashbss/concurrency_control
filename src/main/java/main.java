@@ -1,7 +1,7 @@
 import LockSafeWrapper.DBPersister;
+import LockSafeWrapper.LockDataObjectWrapper;
 import LockSafeWrapper.RemoteLockHandler;
 import java.util.concurrent.TimeUnit;
-
 
 /**
  * Created by abhilashbss on 2/10/21.
@@ -18,19 +18,23 @@ public class main {
         RemoteLockHandler lockHandler = new RemoteLockHandler();
         lockHandler.setDbPersister(dbPersister);
 
+        LockDataObjectWrapper lockDataObjectWrapper = new LockDataObjectWrapper();
+
         DAOOperationalThread thread1 = new DAOOperationalThread();
         DAOOperationalThread thread2 = new DAOOperationalThread();
 
         thread1.setServiceName("thread-1");
         thread1.setDbPersister(dbPersister);
         thread1.setLockHandler(lockHandler);
+        thread1.setLockDataObjectWrapper(lockDataObjectWrapper);
 
         thread2.setServiceName("thread-2");
         thread2.setDbPersister(dbPersister);
         thread2.setLockHandler(lockHandler);
+        thread2.setLockDataObjectWrapper(lockDataObjectWrapper);
 
         thread1.start();
-        TimeUnit.SECONDS.sleep(1);
+       //TimeUnit.SECONDS.sleep(1);
         thread2.start();
 
     }
