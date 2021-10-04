@@ -1,4 +1,4 @@
-# Concurrency Control for Distributed Systems
+# Concurrency Control for Distributed Applications
 
 This is a concurrency library that is built primary for files but extendible to any kind of shared data objects.
 This enables multiple distributed applications to work on shared data without worrying about concurrency issues and without any communication overhead.  
